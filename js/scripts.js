@@ -86,17 +86,17 @@
 
   // On hover, switch to GIF thumbnail
   thumbsContainer.addEventListener('mouseover', function (e) {
-    if (e.target && e.target.nodeName === 'IMG') {
-      var newSrc = e.target.src.slice(0, -3).concat('gif');
-      e.target.src = newSrc;
+    var img = e.target;
+    if (img && img.nodeName === 'IMG') {
+      img.src = img.src.slice(0, -3).concat('gif');
     }
   });
 
   // Go back to JPG after hover
   thumbsContainer.addEventListener('mouseout', function (e) {
-    if (e.target && e.target.nodeName === 'IMG') {
-      var newSrc = e.target.src.slice(0, -3).concat('jpg');
-      e.target.src = newSrc;
+    var img = e.target;
+    if (img && img.nodeName === 'IMG') {
+      img.src = img.src.slice(0, -3).concat('jpg');
     }
   });
 
@@ -104,8 +104,7 @@
   thumbsContainer.addEventListener('dragstart', function (e) {
     var img = e.target;
     if (img && img.nodeName === 'IMG') {
-      var newSrc = img.src.slice(0, -3).concat('jpg');
-      img.src = newSrc;
+      img.src = img.src.slice(0, -3).concat('jpg');
       e.dataTransfer.effectAllowed = 'move';
       elementDragged = img;
     }
@@ -122,7 +121,8 @@
    * the user releases
    */
   dropzones.addEventListener('dragover', function (e) {
-    if (e.target && e.target.classList.contains('drop-zone')) {
+    var dropzone = e.target;
+    if (dropzone && dropzone.classList.contains('drop-zone')) {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
     }
@@ -134,8 +134,9 @@
    * indicate it's ready to accept the drop
    */
   dropzones.addEventListener('dragenter', function (e) {
-    if (e.target && e.target.classList.contains('drop-zone')) {
-      e.target.classList.add('over');
+    var dropzone = e.target;
+    if (dropzone && dropzone.classList.contains('drop-zone')) {
+      dropzone.classList.add('over');
     }
   });
 
@@ -143,8 +144,9 @@
    * When we leave the drop zone, remove the class
    */
   dropzones.addEventListener('dragleave', function (e) {
-    if (e.target && e.target.classList.contains('drop-zone')) {
-      e.target.classList.remove('over');
+    var dropzone = e.target;
+    if (dropzone && dropzone.classList.contains('drop-zone')) {
+      dropzone.classList.remove('over');
     }
   });
 
@@ -152,11 +154,12 @@
    * On drop, add the image to the dropzone and check to see if we're done
    */
   dropzones.addEventListener('drop', function (e) {
-    if (e.target && e.target.classList.contains('drop-zone')) {
+    var dropzone = e.target;
+    if (dropzone && dropzone.classList.contains('drop-zone')) {
       e.preventDefault();
       e.stopPropagation();
-      e.target.appendChild(elementDragged);
-      e.target.classList.remove('over');
+      dropzone.appendChild(elementDragged);
+      dropzone.classList.remove('over');
       checkResults();
     }
     return false;
