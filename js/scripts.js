@@ -1,7 +1,8 @@
 (function() {
   'use strict';
 
-  var elementDragged;
+  var elementDragged, elementDraggedParent;
+  var container = document.querySelector('.container');
   var thumbsContainer = document.querySelector('.thumbnail-pane');
   var dropzones = document.querySelector('.drop-zone-pane');
   var video = document.querySelector('video');
@@ -87,34 +88,39 @@
   };
 
   // On hover, switch to GIF thumbnail
-  thumbsContainer.addEventListener('mouseover', function (e) {
+  container.addEventListener('mouseover', function (e) {
     var img = e.target;
     if (img && img.nodeName === 'IMG') {
       img.src = img.src.slice(0, -3).concat('gif');
+      img.parentNode.classList.add('magnify');
     }
   });
 
   // Go back to JPG after hover
-  thumbsContainer.addEventListener('mouseout', function (e) {
+  container.addEventListener('mouseout', function (e) {
     var img = e.target;
     if (img && img.nodeName === 'IMG') {
       img.src = img.src.slice(0, -3).concat('jpg');
+      img.parentNode.classList.remove('magnify');
     }
   });
 
   // When drag begins, switch back to the JPG
-  thumbsContainer.addEventListener('dragstart', function (e) {
+  container.addEventListener('dragstart', function (e) {
     var img = e.target;
     if (img && img.nodeName === 'IMG') {
       img.src = img.src.slice(0, -3).concat('jpg');
       e.dataTransfer.effectAllowed = 'move';
       elementDragged = img;
+      elementDraggedParent = img.parentNode;
     }
   });
 
   // Clear out the elementDragged variable when drag ends
-  thumbsContainer.addEventListener('dragend', function () {
+  container.addEventListener('dragend', function () {
+    elementDraggedParent.classList.remove('magnify');
     elementDragged = null;
+    elementDraggedParent = null;
   });
 
   /*
