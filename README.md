@@ -8,5 +8,4 @@ Installation
 
 ### Installing and running
 - Clone the repo and cd into the directory
-- Run `npm install`
 - Start up the server (if using http-server, just run `http-server` from the root directory)
