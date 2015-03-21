@@ -1,0 +1,154 @@
+/* Load Our Webfont and Icons from Google and Font-Awesome CDN's */
+@import url('//fonts.googleapis.com/css?family=Lato:400,700');
+@import url('//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css');
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, .container {
+  height: 100%;
+}
+
+body {
+  background: #333;
+  font-family: 'Lato', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+}
+
+.container {
+  width: 1000px;
+  margin: 0 auto;
+}
+
+.flex-container {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.left-pane, .right-pane {
+  height: 95%;
+ }
+
+.left-pane {
+  width: 20%;
+  float: left;
+}
+
+.right-pane {
+  width: 80%;
+  float: right;
+}
+
+.thumbnail-pane {
+  width: 100%;
+  height: 70%;
+  padding-top: 1em;
+}
+
+.action-pane {
+  width: 100%;
+  height: 30%;
+}
+
+.video-pane {
+  height: 70%;
+  width: 100%;
+}
+
+.video-pane video {
+  width: 100%;
+  height: 100%;
+}
+
+.drop-zone-pane {
+  min-height: 30%;
+  width: 100%;
+}
+
+.drop-zone-pane.dim {
+  opacity: 0.5;
+}
+
+.thumbnail {
+  margin: 1em auto;
+  width: 80px;
+  height: 80px;
+  /*border: 2px solid gold;*/
+}
+
+.thumbnail img:hover {
+  cursor: move;
+}
+
+.drop-zone {
+  margin: 1em;
+  width: 125px;
+  height: 125px;
+  display: inline-block;
+  border: 3px dashed #aaa;
+}
+
+.drop-zone.over {
+  background: #888;
+}
+
+.thumbnail img, .drop-zone img {
+  width: 100%;
+  height: 100%;
+}
+
+.drop-zone.correct {
+  border: 5px solid rgb(47, 218, 47);
+}
+
+.drop-zone.incorrect {
+  border: 5px solid red;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.button {
+  font-family: 'Lato', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  font-size: 1em;
+  width: 120px;
+  height: 40px;
+  border: 1px solid #898383;
+  border-radius: 5px;
+  padding: 0.25em 0.5em;
+  color: whitesmoke;
+  background: rgb(121, 83, 213);
+  -webkit-transition: all 0.2s;
+  -moz-transition: all 0.2s;
+  -ms-transition: all 0.2s;
+  transition: all 0.2s;
+}
+
+.button i {
+  margin-right: 5px;
+}
+
+.button:hover {
+  background: rgb(141, 103, 233);
+  cursor: pointer;
+}
+
+.button:active {
+  background: rgb(101, 63, 193);
+  cursor: pointer;
+  -webkit-transition: all 0s;
+  -moz-transition: all 0s;
+  -ms-transition: all 0s;
+  transition: all 0s;
+}
+
+.success-msg {
+  color: rgb(47, 218, 47);
+}
