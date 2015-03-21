@@ -5,6 +5,7 @@
   var container = document.querySelector('.container');
   var thumbsContainer = document.querySelector('.thumbnail-pane');
   var dropzones = document.querySelector('.drop-zone-pane');
+  var audio = document.querySelector('audio');
   var video = document.querySelector('video');
   var overlay = document.querySelector('.video-overlay');
   var successMsg = document.querySelector('.success-msg');
@@ -79,6 +80,7 @@
         dropzones.classList.add('dim');
         successMsg.classList.remove('hidden');
         overlay.classList.add('closed');
+        audio.play();
         video.play();
         video.setAttribute('controls', 'controls');
       } else {
