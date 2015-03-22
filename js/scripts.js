@@ -1,15 +1,18 @@
 (function() {
   'use strict';
-
-  var elementDragged, elementDraggedParent;
+  var hasTouch = 'ontouchstart' in window;
+  var elementDragged, elementDraggedParent, isTouchDragging;
   var container = document.querySelector('.container');
   var thumbsContainer = document.querySelector('.thumbnail-pane');
   var dropzones = document.querySelector('.drop-zone-pane');
   var audio = document.querySelector('audio');
   var video = document.querySelector('video');
   var overlay = document.querySelector('.video-overlay');
+  var actionPane = document.querySelector('.action-pane');
   var successMsg = document.querySelector('.success-msg');
-  var tryAgain = document.querySelector('.try-again');
+  var tryAgain = document.querySelector('.try-again button');
+  var failText = document.querySelector('.try-again p');
+  var tryAgainContainer = document.querySelector('div.try-again');
   var images = [
     'media/lemon_step_1_master.jpg',
     'media/lemon_step_2_master.jpg',
@@ -17,6 +20,19 @@
     'media/lemon_step_4_master.jpg',
     'media/lemon_step_5_master.jpg'
   ];
+
+  // Mimic the LMS API
+  var LMS = {
+    _currentScore: 0,
+
+    setScore: function (score) {
+      this._currentScore = score;
+    },
+
+    score: function () {
+      return this._currentScore;
+    }
+  };
 
   /*
    * Polyfill for checking whether a string contains a substring, taken from:
@@ -64,19 +80,27 @@
     });
   };
 
+  // Check the results to see if they passed
   var checkResults = function () {
     var dropzoneImages = document.querySelectorAll('.drop-zone img');
+    var total = images.length;
+
     // Check to see if all images have been dragged over
-    if (dropzoneImages.length === images.length) {
-      for (var i = 0; i < dropzoneImages.length; i++) {
+    if (total > 0 && dropzoneImages.length === total) {
+      var numCorrect = 0;
+      for (var i = 0; i < total; i++) {
         if (dropzoneImages[i].src.includes(i + 1)) {
           dropzoneImages[i].parentNode.classList.add('correct');
+          numCorrect++;
         } else {
           dropzoneImages[i].parentNode.classList.add('incorrect');
         }
       }
 
-      if (document.querySelectorAll('.correct').length === images.length) {
+      // Set the score on a 0-100 scale
+      LMS.setScore((numCorrect / total) * 100);
+
+      if (LMS.score() > 80) {
         dropzones.classList.add('dim');
         successMsg.classList.remove('hidden');
         overlay.classList.add('closed');
@@ -84,110 +108,172 @@
         video.play();
         video.setAttribute('controls', 'controls');
       } else {
-        tryAgain.classList.remove('hidden');
+        failText.innerHTML = 'Looks like you got ' + LMS.score() + '% correct. Let\'s see if you can do better...';
+        tryAgainContainer.classList.remove('hidden');
       }
+
+      actionPane.classList.toggle('active');
     }
   };
 
-  // On hover, switch to GIF thumbnail
-  container.addEventListener('mouseover', function (e) {
-    var img = e.target;
-    if (img && img.nodeName === 'IMG') {
-      img.src = img.src.slice(0, -3).concat('gif');
-      img.parentNode.classList.add('magnify');
-    }
-  });
+  var addNonTouchEvents = function () {
+    // On hover, switch to GIF thumbnail
+    container.addEventListener('mouseover', function (e) {
+      var img = e.target;
+      if (img && img.nodeName === 'IMG') {
+        img.src = img.src.slice(0, -3).concat('gif');
+        img.parentNode.classList.add('magnify');
+      }
+    });
 
-  // Go back to JPG after hover
-  container.addEventListener('mouseout', function (e) {
-    var img = e.target;
-    if (img && img.nodeName === 'IMG') {
-      img.src = img.src.slice(0, -3).concat('jpg');
-      img.parentNode.classList.remove('magnify');
-    }
-  });
+    // Go back to JPG after hover
+    container.addEventListener('mouseout', function (e) {
+      var img = e.target;
+      if (img && img.nodeName === 'IMG') {
+        img.src = img.src.slice(0, -3).concat('jpg');
+        img.parentNode.classList.remove('magnify');
+      }
+    });
 
-  // When drag begins, switch back to the JPG
-  container.addEventListener('dragstart', function (e) {
-    var img = e.target;
-    if (img && img.nodeName === 'IMG') {
-      img.src = img.src.slice(0, -3).concat('jpg');
-      e.dataTransfer.effectAllowed = 'move';
-      elementDragged = img;
-      elementDraggedParent = img.parentNode;
-    }
-  });
+    // When drag begins, switch back to the JPG
+    container.addEventListener('dragstart', function (e) {
+      var img = e.target;
+      if (img && img.nodeName === 'IMG') {
+        img.src = img.src.slice(0, -3).concat('jpg');
+        e.dataTransfer.effectAllowed = 'move';
+        elementDragged = img;
+        elementDraggedParent = img.parentNode;
+      }
+    });
 
-  // Clear out the elementDragged variable when drag ends
-  container.addEventListener('dragend', function () {
-    elementDraggedParent.classList.remove('magnify');
-    elementDragged = null;
-    elementDraggedParent = null;
-  });
+    // Clear out the elementDragged variable when drag ends
+    container.addEventListener('dragend', function () {
+      elementDraggedParent.classList.remove('magnify');
+      elementDragged = null;
+      elementDraggedParent = null;
+    });
+
+    /*
+     * Need to listen for this event so that our DataTransfer object
+     * remains active, and we'll be able to drop successfully when
+     * the user releases
+     */
+    dropzones.addEventListener('dragover', function (e) {
+      var dropzone = e.target;
+      if (dropzone && dropzone.classList.contains('drop-zone')) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+      }
+      return false;
+    });
+
+    /*
+     * When we enter the drop zone, add class to the drop zone to
+     * indicate it's ready to accept the drop
+     */
+    dropzones.addEventListener('dragenter', function (e) {
+      var dropzone = e.target;
+      if (dropzone && dropzone.classList.contains('drop-zone')) {
+        dropzone.classList.add('over');
+      }
+    });
+
+    /*
+     * When we leave the drop zone, remove the class
+     */
+    dropzones.addEventListener('dragleave', function (e) {
+      var dropzone = e.target;
+      if (dropzone && dropzone.classList.contains('drop-zone')) {
+        dropzone.classList.remove('over');
+      }
+    });
+
+    /*
+     * On drop, add the image to the dropzone and check to see if we're done
+     */
+    dropzones.addEventListener('drop', function (e) {
+      var dropzone = e.target;
+      if (dropzone && dropzone.classList.contains('drop-zone')) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.appendChild(elementDragged);
+        dropzone.classList.remove('over');
+        checkResults();
+      }
+      return false;
+    });
+
+    /*
+     * When the "Try Again" button is clicked, reset everything
+     */
+    tryAgain.addEventListener('click', function () {
+      var drops = document.querySelectorAll('.drop-zone');
+      for (var i = 0; i < drops.length; i++) {
+        drops[i].innerHTML = '';
+        drops[i].classList.remove('correct', 'incorrect');
+      }
+      thumbsContainer.innerHTML = '';
+      this.parentNode.classList.add('hidden');
+      actionPane.classList.toggle('active');
+      setImages();
+    });
+  };
 
   /*
-   * Need to listen for this event so that our DataTransfer object
-   * remains active, and we'll be able to drop successfully when
-   * the user releases
+   * Touch events aren't entirely fleshed out. If I had more time, I'd add them
+   * and also make the layout more responsive to accommodate mobile devices.
    */
-  dropzones.addEventListener('dragover', function (e) {
-    var dropzone = e.target;
-    if (dropzone && dropzone.classList.contains('drop-zone')) {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-    }
-    return false;
-  });
+  var addTouchEvents = function () {
+    // When drag begins, switch back to the JPG
+    container.addEventListener('touchstart', function (e) {
+      var img = e.target;
+      if (img && img.nodeName === 'IMG') {
+        e.preventDefault();
+        img.src = img.src.slice(0, -3).concat('gif');
+        img.parentNode.classList.add('magnify');
+        elementDragged = img;
+        elementDraggedParent = img.parentNode;
+        isTouchDragging = true;
+      }
+    });
 
-  /*
-   * When we enter the drop zone, add class to the drop zone to
-   * indicate it's ready to accept the drop
-   */
-  dropzones.addEventListener('dragenter', function (e) {
-    var dropzone = e.target;
-    if (dropzone && dropzone.classList.contains('drop-zone')) {
-      dropzone.classList.add('over');
-    }
-  });
+    // When drag begins, switch back to the JPG
+    container.addEventListener('touchend', function (e) {
+      if (isTouchDragging) {
+        e.preventDefault();
+        var changedTouch = event.changedTouches[0];
+        var elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
+        if (elem.classList.contains('drop-zone')) {
+          executeTouchDrop();
+        }
+        elementDragged = null;
+        elementDraggedParent = null;
+        isTouchDragging = false;
+      }
+    });
 
-  /*
-   * When we leave the drop zone, remove the class
-   */
-  dropzones.addEventListener('dragleave', function (e) {
-    var dropzone = e.target;
-    if (dropzone && dropzone.classList.contains('drop-zone')) {
-      dropzone.classList.remove('over');
-    }
-  });
+    // When drag begins, switch back to the JPG
+    container.addEventListener('touchmove', function (e) {
+      var img = e.target;
+      if (isTouchDragging) {
+        e.preventDefault();
+        img.src = img.src.slice(0, -3).concat('jpg');
+        elementDragged = img;
+        elementDraggedParent = img.parentNode;
+      }
+    });
 
-  /*
-   * On drop, add the image to the dropzone and check to see if we're done
-   */
-  dropzones.addEventListener('drop', function (e) {
-    var dropzone = e.target;
-    if (dropzone && dropzone.classList.contains('drop-zone')) {
-      e.preventDefault();
-      e.stopPropagation();
-      dropzone.appendChild(elementDragged);
-      dropzone.classList.remove('over');
-      checkResults();
-    }
-    return false;
-  });
+    var executeTouchDrop = function () {
+      window.alert('Dropped in a drop zone');
+    };
 
-  /*
-   * When the "Try Again" button is clicked, reset everything
-   */
-  tryAgain.addEventListener('click', function () {
-    var drops = document.querySelectorAll('.drop-zone');
-    for (var i = 0; i < drops.length; i++) {
-      drops[i].innerHTML = '';
-      drops[i].classList.remove('correct', 'incorrect');
-    }
-    thumbsContainer.innerHTML = '';
-    this.classList.add('hidden');
-    setImages();
-  });
+  };
+
+  if (hasTouch) {
+    addTouchEvents();
+  } else {
+    addNonTouchEvents();
+  }
 
   // On initial load, shuffle the images
   setImages();

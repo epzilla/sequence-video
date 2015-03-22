@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Sequencing Game</title>
+  <meta name='viewport' content='width=device-width,initial-scale=1, minimum-scale=1 maximum-scale=1, user-scalable=no' />
   <link rel="stylesheet" type="text/css" href="styles/styles.css">
 </head>
 <body>
@@ -9,10 +10,13 @@
     <section class="left-pane">
       <section class="thumbnail-pane"></section>
       <section class="action-pane flex-container">
-        <button class="button try-again hidden">
-          <i class="fa fa-repeat"></i>
-          <span>Try Again</span>
-        </button>
+        <div class="try-again hidden">
+          <p></p>
+          <button class="button try-again">
+            <i class="fa fa-repeat"></i>
+            <span>Try Again</span>
+          </button>
+        </div>
         <h2 class="success-msg hidden">
           <i class="fa fa-check"></i>
           <span>Great Job!</span>
@@ -23,7 +27,7 @@
       <section class="video-pane">
         <div class="video-overlay flex-container">
           <h3>
-            Drag the images from the left side to the steps below in the right order.<br/>
+            Drag the images onto the placeholders in the correct order, going from left to right.<br/>
             When you've placed all 5, if the sequence is correct, you'll see the video here.
           </h3>
         </div>
