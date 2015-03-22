@@ -2,9 +2,10 @@ Installation
 ============
 
 ### Prerequisites
-- Node.js & npm
 - A basic server to spin up
-  - I use [http-server](https://www.npmjs.com/package/http-server) - `npm install -g http-server`
+  - I use [http-server](https://www.npmjs.com/package/http-server)
+    - You'll need node.js and npm installed to use.
+    - `npm install -g http-server`
 
 ### Installing and running
 - Clone the repo and cd into the directory
