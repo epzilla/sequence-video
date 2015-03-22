@@ -243,8 +243,11 @@
         e.preventDefault();
         var changedTouch = event.changedTouches[0];
         var elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
+        console.log(elem);
         if (elem.classList.contains('drop-zone')) {
-          executeTouchDrop();
+          executeTouchDrop(elem);
+        } else {
+          revertDrag();
         }
         elementDragged = null;
         elementDraggedParent = null;
@@ -257,14 +260,40 @@
       var img = e.target;
       if (isTouchDragging) {
         e.preventDefault();
-        img.src = img.src.slice(0, -3).concat('jpg');
-        elementDragged = img;
-        elementDraggedParent = img.parentNode;
+        var touch = event.targetTouches[0];
+        if (!elementDragged) {
+          elementDragged = img;
+          elementDraggedParent = img.parentNode;
+        }
+        elementDragged.src = elementDragged.src.slice(0, -3).concat('jpg');
+        elementDragged.style.position = 'absolute';
+        elementDragged.style['z-index'] = '-1';
+        elementDragged.style.height = '100px';
+        elementDragged.style.width = '100px';
+        elementDragged.style.left = touch.pageX - 100 + 'px';
+        elementDragged.style.top = touch.pageY - 100 + 'px';
       }
     });
 
-    var executeTouchDrop = function () {
-      window.alert('Dropped in a drop zone');
+    var executeTouchDrop = function (elem) {
+      elementDragged.style.position = 'initial';
+      elementDragged.style.top = 0;
+      elementDragged.style.left = 0;
+      elementDragged.style.width = '100%';
+      elementDragged.style.height = '100%';
+      elem.appendChild(elementDragged);
+      elementDraggedParent.classList.remove('magnify');
+      checkResults();
+    };
+
+    var revertDrag = function () {
+      elementDragged.style.position = 'initial';
+      elementDragged.style['z-index'] = 'initial';
+      elementDragged.style.height = '80px';
+      elementDragged.style.width = '80px';
+      elementDragged.style.left = 0;
+      elementDragged.style.top = 0;
+      elementDraggedParent.classList.remove('magnify');
     };
 
   };
