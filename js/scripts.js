@@ -286,12 +286,6 @@
 
   };
 
-  if (hasTouch) {
-    addTouchEvents();
-  } else {
-    addNonTouchEvents();
-  }
-
   /*
    * When the "Try Again" button is clicked, reset everything
    */
@@ -307,7 +301,13 @@
     setImages();
   });
 
-  // On initial load, shuffle the images
+  // On initial load, set event handlers and shuffle images
+  if (hasTouch) {
+    addTouchEvents();
+  } else {
+    addNonTouchEvents();
+  }
+
   setImages();
 
 })();
