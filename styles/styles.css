@@ -13,6 +13,8 @@ html, body, .container {
 body {
   background: #333;
   font-family: 'Lato', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  /* Prevent mobile Chrome/Safari from prompting user to save image on tap and hold */
+  -webkit-touch-callout: none !important;
 }
 
 .container {
@@ -188,6 +190,7 @@ body {
 
 .success-msg {
   color: rgb(47, 218, 47);
+  text-align: center;
 }
 
 .try-again p {
@@ -250,7 +253,7 @@ body {
 
   .drop-zone-pane {
     width: 100%;
-    height: 25%;
+    height: 50%;
     float: none;
     -webkit-order: 1;
     order: 1;
@@ -271,7 +274,7 @@ body {
 
   .video-pane {
     width: 100%;
-    height: 75%;
+    height: 50%;
     float: none;
     -webkit-order: 2;
     order: 2;

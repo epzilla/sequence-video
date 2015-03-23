@@ -202,21 +202,6 @@
       }
       return false;
     });
-
-    /*
-     * When the "Try Again" button is clicked, reset everything
-     */
-    tryAgain.addEventListener('click', function () {
-      var drops = document.querySelectorAll('.drop-zone');
-      for (var i = 0; i < drops.length; i++) {
-        drops[i].innerHTML = '';
-        drops[i].classList.remove('correct', 'incorrect');
-      }
-      thumbsContainer.innerHTML = '';
-      this.parentNode.classList.add('hidden');
-      actionPane.classList.toggle('active');
-      setImages();
-    });
   };
 
   /*
@@ -229,12 +214,14 @@
       var img = e.target;
       if (img && img.nodeName === 'IMG') {
         e.preventDefault();
+        e.stopPropagation();
         img.src = img.src.slice(0, -3).concat('gif');
         img.parentNode.classList.add('magnify');
         elementDragged = img;
         elementDraggedParent = img.parentNode;
         isTouchDragging = true;
       }
+      return false;
     });
 
     // When drag begins, switch back to the JPG
@@ -243,7 +230,6 @@
         e.preventDefault();
         var changedTouch = event.changedTouches[0];
         var elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
-        console.log(elem);
         if (elem.classList.contains('drop-zone')) {
           executeTouchDrop(elem);
         } else {
@@ -258,31 +244,33 @@
     // When drag begins, switch back to the JPG
     container.addEventListener('touchmove', function (e) {
       var img = e.target;
+
       if (isTouchDragging) {
         e.preventDefault();
         var touch = event.targetTouches[0];
+
         if (!elementDragged) {
           elementDragged = img;
           elementDraggedParent = img.parentNode;
         }
+        elementDraggedParent.classList.remove('magnify');
         elementDragged.src = elementDragged.src.slice(0, -3).concat('jpg');
         elementDragged.style.position = 'absolute';
         elementDragged.style['z-index'] = '-1';
         elementDragged.style.height = '100px';
         elementDragged.style.width = '100px';
-        elementDragged.style.left = touch.pageX - 100 + 'px';
-        elementDragged.style.top = touch.pageY - 100 + 'px';
+        elementDragged.style.left = touch.pageX - 50 + 'px';
+        elementDragged.style.top = touch.pageY - 50 + 'px';
       }
     });
 
-    var executeTouchDrop = function (elem) {
+    var executeTouchDrop = function (dropZone) {
       elementDragged.style.position = 'initial';
       elementDragged.style.top = 0;
       elementDragged.style.left = 0;
       elementDragged.style.width = '100%';
       elementDragged.style.height = '100%';
-      elem.appendChild(elementDragged);
-      elementDraggedParent.classList.remove('magnify');
+      dropZone.appendChild(elementDragged);
       checkResults();
     };
 
@@ -303,6 +291,21 @@
   } else {
     addNonTouchEvents();
   }
+
+  /*
+   * When the "Try Again" button is clicked, reset everything
+   */
+  tryAgain.addEventListener('click', function () {
+    var drops = document.querySelectorAll('.drop-zone');
+    for (var i = 0; i < drops.length; i++) {
+      drops[i].innerHTML = '';
+      drops[i].classList.remove('correct', 'incorrect');
+    }
+    thumbsContainer.innerHTML = '';
+    this.parentNode.classList.add('hidden');
+    actionPane.classList.toggle('active');
+    setImages();
+  });
 
   // On initial load, shuffle the images
   setImages();
