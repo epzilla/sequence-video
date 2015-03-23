@@ -121,7 +121,7 @@ body {
   border: 3px solid gold;
 }
 
-.thumbnail img:hover {
+.thumbnail img:hover, .drop-zone img:hover {
   cursor: move;
 }
 
@@ -130,7 +130,7 @@ body {
   width: 125px;
   height: 125px;
   display: inline-block;
-  border: 3px dashed #aaa;
+  border: 3px dotted #aaa;
 }
 
 .drop-zone.over {
@@ -195,6 +195,10 @@ body {
 
 .try-again p {
   color: red;
+}
+
+.thumbnail, .thumbnail img, .drop-zone, .drop-zone img {
+  border-radius: 5px;
 }
 
 @media (max-width: 1000px) {
